@@ -1,0 +1,16 @@
+{
+  "name": "hosty-local-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx --watch server.ts"
+  },
+  "dependencies": {
+    "@hosty-sdk/app": "0.32.0",
+    "esbuild": "0.25.12",
+    "tsx": "4.23.15",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

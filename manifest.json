@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "app.0.1",
+  "id": "hosty.speech",
+  "name": "Hosty Speech",
+  "version": "0.1.0",
+  "runtimeProfiles": [
+    {
+      "key": "dev",
+      "type": "docker",
+      "development": true,
+      "default": true
+    }
+  ],
+  "defaultRuntime": "dev",
+  "services": [
+    {
+      "key": "web",
+      "runtimes": {
+        "dev": {
+          "type": "docker",
+          "image": {
+            "repository": "node",
+            "tag": "24-bookworm-slim"
+          },
+          "artifact": "source",
+          "sourceMount": {
+            "path": ".",
+            "target": "/workspace",
+            "mode": "ro",
+            "caches": [
+              "node_modules"
+            ]
+          },
+          "workingDirectory": ".",
+          "setup": "npm install --ignore-scripts --no-audit --no-fund --package-lock=false",
+          "command": "node --import tsx --watch server.ts",
+          "ports": [
+            {
+              "key": "http",
+              "containerPort": 3000,
+              "protocol": "http",
+              "public": true
+            }
+          ],
+          "healthcheck": {
+            "type": "exec",
+            "command": "node -e \u0022fetch(\u0027http://127.0.0.1:3000/healthz\u0027).then(r=\u003Eprocess.exit(r.ok?0:1)).catch(()=\u003Eprocess.exit(1))\u0022",
+            "gracePeriodSeconds": 90,
+            "intervalSeconds": 10,
+            "timeoutSeconds": 5,
+            "retries": 3
+          }
+        }
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "key": "http",
+      "service": "web",
+      "port": "http",
+      "protocol": "http",
+      "public": true
+    }
+  ],
+  "ui": {
+    "entrypoint": {
+      "endpoint": "http",
+      "path": "/"
+    }
+  },
+  "data": {
+    "enabled": true,
+    "targets": [
+      {
+        "runtime": "dev",
+        "service": "web",
+        "containerPath": "/app/data",
+        "environment": "HOSTY_APP_DATA_DIR"
+      }
+    ]
+  },
+  "description": "Local multi-model speech-to-text provider with automatic hardware acceleration."
+}
