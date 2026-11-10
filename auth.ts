@@ -13,7 +13,7 @@ import { isValidCodeVerifier, resolveAppAuthProtocol, appAuthProtocolMinimum } f
 // here: `POST /api/auth/apps/revalidate` with the app service token, and the status taxonomy below
 // keyed on HTTP status only — never on error-code strings, so a new Core code cannot break this app.
 
-export const identityCookieName = "hosty_app_identity";
+export const identityCookieName = "hosty_speech_identity";
 
 export async function getAppRecoveryParams() {
   return { appId: process.env.HOSTY_APP_ID ?? "", corePublicOrigin: process.env.HOSTY_CORE_PUBLIC_ORIGIN ?? null,
@@ -63,7 +63,8 @@ export async function resolveAppSession(token: string | null): Promise<AppSessio
 
   const coreOrigin = process.env.HOSTY_CORE_ORIGIN?.trim();
   const serviceToken = process.env.HOSTY_APP_SERVICE_TOKEN?.trim();
-  if (!coreOrigin || !serviceToken) {
+  const appId = process.env.HOSTY_APP_ID?.trim();
+  if (!coreOrigin || !serviceToken || !appId) {
     // An operator problem, not a caller problem: the app was started outside Core, or by a Core too
     // old to inject these. Reported as its own status so the page can say which.
     return { status: "misconfigured" };
@@ -75,6 +76,7 @@ export async function resolveAppSession(token: string | null): Promise<AppSessio
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${serviceToken}` },
       body: JSON.stringify({ accessToken: token }),
+      redirect: "error", signal: AbortSignal.timeout(5_000), cache: "no-store",
     });
   } catch {
     // Core unreachable is transient and must not read as "refused": the difference decides whether
@@ -98,10 +100,10 @@ export async function resolveAppSession(token: string | null): Promise<AppSessio
   // field that carries the answer, and reading only the identity would let a future negative result
   // pass as a session.
   const payload = (await response.json().catch(() => null)) as
-    | { active?: unknown; userId?: unknown; hostRole?: unknown; activeUntil?: unknown; activityRequired?: unknown; continuity?: unknown }
+    | { active?: unknown; appId?: unknown; userId?: unknown; hostRole?: unknown; activeUntil?: unknown; activityRequired?: unknown; continuity?: unknown }
     | null;
   const userId = typeof payload?.userId === "string" ? payload.userId : "";
-  if (payload?.active !== true || !userId) {
+  if (payload?.active !== true || payload.appId !== appId || !userId) {
     return { status: "unavailable" };
   }
 
