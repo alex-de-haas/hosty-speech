@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import test, { type TestContext } from 'node:test';
 import type { CatalogModel } from '../src/catalog.js';
 import { Downloads } from '../src/downloads.js';
@@ -60,7 +60,7 @@ test('downloads install only a complete size- and checksum-verified artifact, th
   assert.equal(fetches, 1);
   assert.deepEqual(await readFile(downloads.path(model.id)), artifact);
   assert.deepEqual(downloads.state()[model.id], { state: 'installed', received: artifact.length, total: artifact.length });
-  assert.deepEqual(await readdir(path), [downloads.path(model.id).split('/').at(-1)]);
+  assert.deepEqual(await readdir(path), [basename(downloads.path(model.id))]);
   downloads.start(model.id);
   assert.equal(fetches, 1);
 
