@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "app-feeds.0.1",
+  "appId": "hosty.speech",
+  "feeds": [
+    {
+      "id": "main",
+      "manifestRef": "https://raw.githubusercontent.com/alex-de-haas/hosty-speech/main/manifest.json",
+      "default": true
+    }
+  ]
+}
