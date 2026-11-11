@@ -3,7 +3,7 @@
   "id": "hosty.speech",
   "name": "Hosty Speech",
   "description": "Local multi-model speech-to-text provider with automatic hardware acceleration.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source": {
     "type": "git",
     "repository": "https://github.com/alex-de-haas/hosty-speech.git",
