@@ -11,9 +11,9 @@ pointing to this repository's public branch manifest. The manifest declares its 
 branch so Core can retrieve the source needed by the native localCommand setup/build recipe.
 
 The manifest's `catalogMetadata` identifies the application-owned [icon](../../../assets/icon.svg)
-and [store page](../../store.md). The icon reuses the Hosty Whisper design with a Hosty Speech
-accessible label. The separate Hosty catalog entry points to the public feed and lets the catalog
-generator vendor these assets.
+and [store page](../../store.md). The icon depicts a mint waveform on a navy rounded square.
+The separate Hosty catalog entry points to the public feed and lets the catalog generator vendor
+these assets.
 
 Application source is MIT-licensed in [LICENSE](../../../LICENSE); package metadata records the same
 SPDX identifier. Dependencies and model weights retain their [own notices](../../../THIRD-PARTY-NOTICES.md).
