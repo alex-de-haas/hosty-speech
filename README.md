@@ -6,6 +6,10 @@ through the version-one speech-to-text interface. Configure it from **Settings â
 Managed Core/browser acceptance is in progress; see the
 [implementation plan](docs/features/universal-speech-provider/plan.md) for current evidence.
 
+The repository-owned [feed](feeds.json) exposes the `main` installation track. Marketplace display
+assets live in this repository; see [distribution](docs/features/marketplace-distribution/feature.md).
+Application source is [MIT-licensed](LICENSE); models and dependencies retain their own licenses.
+
 The initial catalog contains GigaAM v3 E2E-RNN-T, Parakeet TDT 0.6B v3, Qwen3-ASR 1.7B and
 Whisper Large v3 Turbo. Each model shows its supported languages, download size and license.
 Downloads are explicit, pinned and SHA-256 verified. Audio is processed in memory and not retained.
