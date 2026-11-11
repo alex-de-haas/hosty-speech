@@ -2,53 +2,63 @@
   "schemaVersion": "app.0.1",
   "id": "hosty.speech",
   "name": "Hosty Speech",
+  "description": "Local multi-model speech-to-text provider with automatic hardware acceleration.",
   "version": "0.1.0",
   "runtimeProfiles": [
     {
-      "key": "dev",
-      "type": "docker",
-      "development": true,
+      "key": "local",
+      "type": "localCommand",
       "default": true
+    },
+    {
+      "key": "dev",
+      "type": "localCommand",
+      "development": true
     }
   ],
-  "defaultRuntime": "dev",
+  "defaultRuntime": "local",
   "services": [
     {
       "key": "web",
       "runtimes": {
-        "dev": {
-          "type": "docker",
-          "image": {
-            "repository": "node",
-            "tag": "24-bookworm-slim"
-          },
-          "artifact": "source",
-          "sourceMount": {
-            "path": ".",
-            "target": "/workspace",
-            "mode": "ro",
-            "caches": [
-              "node_modules"
-            ]
-          },
+        "local": {
+          "type": "localCommand",
           "workingDirectory": ".",
-          "setup": "npm install --ignore-scripts --no-audit --no-fund --package-lock=false",
-          "command": "node --import tsx --watch server.ts",
+          "setup": "npm ci --include=dev --no-audit --no-fund && npm run build",
+          "command": "node dist/server.js",
           "ports": [
             {
               "key": "http",
-              "containerPort": 3000,
+              "containerPort": 3520,
               "protocol": "http",
               "public": true
             }
           ],
           "healthcheck": {
-            "type": "exec",
-            "command": "node -e \u0022fetch(\u0027http://127.0.0.1:3000/healthz\u0027).then(r=\u003Eprocess.exit(r.ok?0:1)).catch(()=\u003Eprocess.exit(1))\u0022",
-            "gracePeriodSeconds": 90,
-            "intervalSeconds": 10,
-            "timeoutSeconds": 5,
-            "retries": 3
+            "type": "http",
+            "port": 3520,
+            "path": "/healthz",
+            "timeoutSeconds": 5
+          }
+        },
+        "dev": {
+          "type": "localCommand",
+          "workingDirectory": ".",
+          "setup": "npm ci --include=dev --no-audit --no-fund && npm run build",
+          "command": "node dist/server.js",
+          "ports": [
+            {
+              "key": "http",
+              "containerPort": 3520,
+              "protocol": "http",
+              "public": true
+            }
+          ],
+          "healthcheck": {
+            "type": "http",
+            "port": 3520,
+            "path": "/healthz",
+            "timeoutSeconds": 5
           }
         }
       }
@@ -66,19 +76,77 @@
   "ui": {
     "entrypoint": {
       "endpoint": "http",
-      "path": "/"
+      "path": "/settings"
+    },
+    "settings": {
+      "endpoint": "http",
+      "path": "/settings"
     }
   },
   "data": {
     "enabled": true,
     "targets": [
       {
+        "runtime": "local",
+        "environment": "HOSTY_APP_DATA_DIR"
+      },
+      {
         "runtime": "dev",
-        "service": "web",
-        "containerPath": "/app/data",
         "environment": "HOSTY_APP_DATA_DIR"
       }
     ]
   },
-  "description": "Local multi-model speech-to-text provider with automatic hardware acceleration."
+  "cache": {
+    "enabled": true,
+    "targets": [
+      {
+        "runtime": "local",
+        "environment": "HOSTY_APP_CACHE_DIR"
+      },
+      {
+        "runtime": "dev",
+        "environment": "HOSTY_APP_CACHE_DIR"
+      }
+    ]
+  },
+  "provides": [
+    "speech-to-text"
+  ],
+  "interfaces": {
+    "speech-to-text": [
+      {
+        "key": "default",
+        "endpoint": "http",
+        "path": "/api/speech/v1",
+        "version": 1,
+        "capabilities": [
+          "recording"
+        ]
+      }
+    ]
+  },
+  "capabilities": [
+    "logs"
+  ],
+  "catalogMetadata": {
+    "icon": "assets/icon.svg"
+  },
+  "settings": [
+    {
+      "key": "HOSTY_SPEECH_NATIVE_LIBRARY",
+      "type": "string",
+      "default": "",
+      "required": false,
+      "label": "Advanced native runtime override",
+      "description": "Optional absolute path to a trusted matching transcribe.cpp 0.4.1 shared library, such as an installed CUDA bundle. Leave empty for the bundled runtime. Restart to apply."
+    },
+    {
+      "key": "HOSTY_SPEECH_CUDA_RUNTIME_DIR",
+      "type": "string",
+      "default": "",
+      "required": false,
+      "label": "Advanced CUDA runtime directory",
+      "description": "Optional directory for the matching CUDA runtime libraries required by a native CUDA bundle. Leave empty for normal driver/runtime discovery. Restart to apply."
+    }
+  ]
 }
