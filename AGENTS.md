@@ -2,9 +2,16 @@
 
 ## Source and authority
 
-Edit only a registered Core worktree. Keep canonical/shared checkouts unchanged. Core tools manage
-Git and Hosty lifecycle. Native source access does not authorize a live runtime switch, publication,
-extra commits or deletion. Preserve unrelated unfinished work. Use the approved project plan.
+Before editing, prepare or resume the registered Core workspace for this repository. Confirm the
+Core instance, repository and target branch. External clients use `prepare_workspace`. Read the
+applicable instructions in the returned absolute worktree before editing there. Keep the original
+checkout and Core's shared managed-source checkout unchanged. Keep an activity lease while native
+editors or processes use the workspace. Follow the [Hosty external development workflow](https://github.com/alex-de-haas/docker-host/blob/main/docs/features/external-development-workspaces/feature.md)
+for operation recovery and cleanup.
+
+Core tools manage Git and Hosty lifecycle. Native source access does not authorize a live runtime
+switch, publication, extra commits or deletion. Preserve unrelated unfinished work. Use the approved
+project plan.
 
 ## Scope
 
